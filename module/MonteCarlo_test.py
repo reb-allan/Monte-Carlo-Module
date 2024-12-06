@@ -47,9 +47,6 @@ class TestDie(unittest.TestCase):
 
 class TestGame(unittest.TestCase):
     def setUp(self):
-        '''
-        
-        '''
         die1 = Die(faces=np.array([1, 2, 3, 4, 5, 6]))
         die2 = Die(faces=np.array([1, 2, 3, 4, 5, 6]))
         self.game = Game(dice=[die1, die2])
@@ -70,37 +67,27 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.game.results.shape[0], 5)
         self.assertEqual(self.game.results.shape[1], 2)  # Since 2 dice are being rolled
 
-    def test_show_results_wide(self):
+    def test_show_results(self):
         '''
-        Test that show_results returns the DataFrame in wide format
+        Test that show_results returns the DataFrame in wide and narrow formats,
+        and raises an error for invalid form.
         '''
         self.game.play(rolls=5)
         results_wide = self.game.show_results(form="wide")
         self.assertIsInstance(results_wide, pd.DataFrame)
         self.assertEqual(results_wide.index.name, 'Roll')
 
-    def test_show_results_narrow(self):
-        '''
-        Test that show_results returns the DataFrame in narrow format
-        '''
         self.game.play(rolls=5)
         results_narrow = self.game.show_results(form="narrow")
         self.assertIsInstance(results_narrow, pd.DataFrame)
         self.assertEqual(results_narrow.index.names, ['Roll', 'Die'])
 
-    def test_show_results_invalid_form(self):
-        '''
-        Test invalid form argument
-        '''
         with self.assertRaises(ValueError):
-            self.game.show_results(form="invalid")
-
+            self.game.show_results(form="invalid")            
+            
 
 class TestAnalyzer(unittest.TestCase):
     def setUp(self):
-        '''
-        
-        '''
         die1 = Die(faces=np.array([1, 2, 3, 4, 5, 6]))
         die2 = Die(faces=np.array([1, 2, 3, 4, 5, 6]))
         self.game = Game(dice=[die1, die2])
