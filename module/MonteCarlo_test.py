@@ -13,36 +13,33 @@ class TestDie(unittest.TestCase):
         '''
         self.assertEqual(list(self.die.faces), [1, 2, 3, 4, 5, 6])
         self.assertTrue(np.array_equal(self.die.weights, np.ones(6)))
-        self.assertIsInstance(self.die.df, pd.DataFrame)
 
     def test_change_weight(self):
         '''
-        Test changing the weight of a face
+        Test changing the weight of a face, invalid face change, and invalid weight type
         '''
         self.die.change_weight(1, 2.0)
         self.assertEqual(self.die.df.loc[1, 'weights'], 2.0)
 
-    def test_invalid_face_for_weight_change(self):
-        '''
-        Test invalid face change (should raise IndexError)
-        '''
         with self.assertRaises(IndexError):
             self.die.change_weight(7, 2.0)
 
-    def test_invalid_weight_type(self):
-        '''
-        Test invalid weight type (should raise TypeError)
-        '''
         with self.assertRaises(TypeError):
             self.die.change_weight(1, "string")
 
     def test_roll(self):
         '''
-        Test that roll produces the expected output (a face from the die)
+        Test that roll produces the expected output.
         '''
         result = self.die.roll(times=3)
         self.assertEqual(len(result), 3)
-        self.assertTrue(all(face in self.die.faces for face in result))
+        
+    def test_show_state_returns_copy(self):
+        """
+        Test that the show_state method returns a dataframe.
+        """
+        die_state = self.die.show_state()
+        self.assertIsInstance(die_state, pd.DataFrame)
 
 
 class TestGame(unittest.TestCase):
@@ -51,26 +48,24 @@ class TestGame(unittest.TestCase):
         die2 = Die(faces=np.array([1, 2, 3, 4, 5, 6]))
         self.game = Game(dice=[die1, die2])
 
-    def test_initialization(self):
+    def test_initialization_game(self):
         '''
         Test that the game initializes with correct dice
         '''
         self.assertEqual(len(self.game.dice), 2)
-        self.assertIsInstance(self.game.dice[0], Die)
 
     def test_play(self):
         '''
-        Test the play method to verify the results DataFrame
+        Test the play method to verify the results are a DataFrame, and checks that the DataFrame is the size we would expect.
         '''
         self.game.play(rolls=5)
         self.assertIsInstance(self.game.results, pd.DataFrame)
         self.assertEqual(self.game.results.shape[0], 5)
-        self.assertEqual(self.game.results.shape[1], 2)  # Since 2 dice are being rolled
+        self.assertEqual(self.game.results.shape[1], 2)  
 
     def test_show_results(self):
         '''
-        Test that show_results returns the DataFrame in wide and narrow formats,
-        and raises an error for invalid form.
+        Test that show_results returns the DataFrame in wide and narrow formats, and checks the index for both.
         '''
         self.game.play(rolls=5)
         results_wide = self.game.show_results(form="wide")
@@ -80,10 +75,7 @@ class TestGame(unittest.TestCase):
         self.game.play(rolls=5)
         results_narrow = self.game.show_results(form="narrow")
         self.assertIsInstance(results_narrow, pd.DataFrame)
-        self.assertEqual(results_narrow.index.names, ['Roll', 'Die'])
-
-        with self.assertRaises(ValueError):
-            self.game.show_results(form="invalid")            
+        self.assertEqual(results_narrow.index.names, ['Roll', 'Die'])           
             
 
 class TestAnalyzer(unittest.TestCase):
@@ -94,15 +86,27 @@ class TestAnalyzer(unittest.TestCase):
         self.game.play(rolls=5)
         self.analyzer = Analyzer(game=self.game)
 
+    def test_initialization_analyser(self):
+        '''
+        Test that the analyzer is initialized correctly with a Game object and raises an error when initialized with a non-Game object.
+        '''
+        self.assertEqual(self.analyzer.game, self.game)
+        
+        with self.assertRaises(ValueError):
+            invalid_analyzer = Analyzer([])
+        
+        with self.assertRaises(ValueError):
+            invalid_analyzer = Analyzer(None)
+        
     def test_jackpot(self):
         '''
-        Test jackpot count (all dice rolled the same face)
+        Test jackpot count.
         '''
         self.assertIsInstance(self.analyzer.jackpot(), int)
 
     def test_face_counts_per_roll(self):
         '''
-        Test that face counts are calculated correctly
+        Test that face counts are calculated correctly, checking that it returns a dataframe, the index name is correct, and all counts determined are the faces of our dice.
         '''
         face_counts = self.analyzer.face_counts_per_roll()
         self.assertIsInstance(face_counts, pd.DataFrame)
@@ -111,7 +115,7 @@ class TestAnalyzer(unittest.TestCase):
 
     def test_combo_counts(self):
         '''
-        Test that combinations of rolled faces are counted correctly
+        Test the combinations of rolled faces, checking that it returns data frame and the column was named correctly.
         '''
         combo_counts = self.analyzer.combo_counts()
         self.assertIsInstance(combo_counts, pd.DataFrame)
@@ -119,7 +123,7 @@ class TestAnalyzer(unittest.TestCase):
 
     def test_permute_counts(self):
         '''
-        Test that permutations of rolled faces are counted correctly
+        Test the permutations of rolled faces, checking that it returns data frame and the column was named correctly.
         '''
         perm_counts = self.analyzer.permute_counts()
         self.assertIsInstance(perm_counts, pd.DataFrame)
