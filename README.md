@@ -65,6 +65,7 @@ This section will detail all methods for each class.
 ### Die Class:
 
 The methods in the Die Class are:
+- __init__(self, faces): Initializes the Die object with faces being set as a numpy array and default weights set to 1.0.
 - change_weight(self, face, new_weight): Changes the weight of a specific face on the die.
 - roll(self, times=1): Rolls the die a given number of times, applying weights to determine the outcome. Defaults to 1 roll.
 - show_state(self): Returns a copy of the die's current state (faces and weights).
@@ -73,6 +74,7 @@ The methods in the Die Class are:
 ### Game Class:
 
 The methods in the Game Class are:
+- __init__(self, dice): Initializes the Game object with a list of Die objects.
 - play(self, rolls): Rolls all the dice a specified number of times.
 - show_results(self, form="wide"): Returns the results of the most recent play with the option for a wide or narrow data frame, defaulting. to wide.
 
@@ -80,10 +82,12 @@ The methods in the Game Class are:
 ### Analyzer Class:
 
 The methods in the Analyzer Class are:
+- __init__(self, game): Initializes the Analyzer object with a Game object.
 - jackpot(self): Computes how many times all dice rolled the same face (a jackpot).
 - face_counts_per_roll(self): Computes how many times each face was rolled in each event.
 - combo_counts(self): Computes distinct combinations of faces rolled and their counts.
 - permute_counts(self): Computes distinct permutations of faces rolled and their counts.
+
 
 
 ## Metadata
