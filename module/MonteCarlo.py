@@ -25,7 +25,7 @@ class Die:
         if not isinstance(faces, np.ndarray):
             raise TypeError("Faces must be a numpy array.")
         
-        if any(faces.count(face) > 1 for face in faces):
+        if len(faces) != len(np.unique(faces)):
             raise ValueError("Faces must be distinct.")
         
         self.faces = faces
@@ -136,7 +136,7 @@ class Game:
             return self.results.copy()
         
         elif form == "narrow":
-            narrow_results = self.wide_results.melt(ignore_index=False, var_name='Die', value_name='Outcome')
+            narrow_results = self.results.melt(ignore_index=False, var_name='Die', value_name='Outcome')
             narrow_results.reset_index(inplace=True)
             narrow_results.set_index(['Roll', 'Die'], inplace=True)
             return narrow_results
